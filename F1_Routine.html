@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Section F1 — Weekly Routine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Racing+Sans+One&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#0b0d10; --panel:#15181c; --line:#2a2f35;
+  --red:#e10600; --amber:#ffc700; --green:#12b768; --silver:#a9b0b8;
+  --ink:#f2f2ef; --dim:#8b9198;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+*{box-sizing:inherit;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Rajdhani',Arial,sans-serif;}
+.board{max-width:720px;margin:0 auto;}
+.flag{height:10px;background-image:repeating-conic-gradient(#f2f2ef 0% 25%, #0b0d10 0% 50%);background-size:16px 16px;}
+.hero{padding:26px 20px 20px;background:linear-gradient(180deg,#000,#0b0d10);border-bottom:4px solid var(--red);}
+.hero h1{font-family:'Racing Sans One',cursive;font-weight:400;font-size:clamp(2rem,8vw,2.8rem);letter-spacing:.02em;margin:0 0 6px;color:var(--ink);}
+.hero p{margin:0;font-weight:600;color:var(--dim);font-size:.95rem;line-height:1.5;}
+.hero .joke{color:var(--amber);font-weight:600;}
+.days{display:flex;gap:8px;padding:16px 20px 0;overflow-x:auto;}
+.day-btn{flex:1;min-width:60px;padding:10px 4px;text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:4px;color:var(--dim);font-family:'Rajdhani';font-weight:700;font-size:.95rem;cursor:pointer;}
+.day-btn.active{background:var(--red);color:#fff;border-color:var(--red);}
+.day-btn:focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
+.room{padding:14px 20px 0;font-weight:700;color:var(--ink);font-size:.95rem;}
+.room span{color:var(--dim);font-weight:600;}
+main{padding:10px 20px 0;display:flex;flex-direction:column;gap:10px;}
+.slot{display:flex;gap:12px;background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--bar,#3a3f45);border-radius:4px;padding:12px 14px;}
+.slot .time{flex:0 0 100px;font-weight:700;color:var(--dim);font-size:.82rem;line-height:1.3;}
+.slot .info .title{font-weight:700;font-size:1rem;}
+.slot .info .meta{font-size:.8rem;color:var(--dim);margin-top:2px;}
+.slot.free{opacity:.5;--bar:#3a3f45;}
+.slot.lab{--bar:var(--silver);}
+.slot.theory{--bar:var(--red);}
+.slot.lunch{--bar:var(--amber);}
+.slot.activity{--bar:var(--green);}
+.legend{display:flex;flex-wrap:wrap;gap:14px;padding:18px 20px 0;font-size:.78rem;color:var(--dim);}
+.legend .dot{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+footer{padding:16px 20px calc(28px + env(safe-area-inset-bottom,0px));font-size:.76rem;color:var(--dim);line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="board">
+  <div class="flag"></div>
+  <div class="hero">
+    <h1>SECTION F1</h1>
+    <p> Techno Main Salt Lake | CSE + AIML | F1  <br><span class="joke">🏁 Formula 1 Section — One Section. One Batch. One Journey.</span></p>
+  </div>
+  <nav class="days" id="dayNav"></nav>
+  <div class="room" id="roomLine"></div>
+  <main id="schedule"></main>
+  <div class="legend">
+    <span><i class="dot" style="background:var(--red)"></i>Lecture</span>
+    <span><i class="dot" style="background:var(--silver)"></i>Lab session</span>
+    <span><i class="dot" style="background:var(--amber)"></i>Lunch break</span>
+    <span><i class="dot" style="background:var(--green)"></i>NCC / NSS / Sports</span>
+    <span><i class="dot" style="background:#3a3f45"></i>Free period</span>
+  </div>
+  <footer>Room numbers as per the official ODD-semester routine. Lab and workshop sessions may run in a dedicated lab room rather than the home classroom — check with your CR if unsure. No F1 classes on Saturday.</footer>
+</div>
+<script>
+const DATA = {
+  Mon: { room:"5005", slots:[
+    {t:"9:00 – 11:30 AM", title:" ", type:"free"},
+    {t:"11:30 AM – 2:00 PM", title:"Physics Lab (BS PH191)", meta:"Room 5010 · DRC, RB, JC, AB, SMC", type:"lab"},
+    {t:"2:00 – 2:50 PM", title:"Lunch Break", type:"lunch"},
+    {t:"2:50 – 3:40 PM", title:"Physics (BS PH101)", meta:"RB", type:"theory"},
+    {t:"3:40 – 5:20 PM", title:"Basic Electrical & Electronics Engg. (ESEE101)", meta:"AB", type:"theory"},
+    {t:"5:20 – 7:00 PM", title:"  ", type:"free"},
+  ]},
+  Tue: { room:"5018", slots:[
+    {t:"9:00 – 11:30 AM", title:" ", type:"free"},
+    {t:"11:30 AM – 12:20 PM", title:"Physics (BS PH101)", meta:"SB", type:"theory"},
+    {t:"12:20 – 3:40 PM", title:"Engineering Graphics & Design (ES ME191)", meta:"7th floor · SG, SM, SkM(V)", type:"lab"},
+    {t:"3:40 – 7:00 PM", title:"  ", type:"free"},
+  ]},
+  Wed: { room:"5013", slots:[
+    {t:"9:00 – 11:30 AM", title:" ", type:"free"},
+    {t:"11:30 AM – 1:10 PM", title:"Indian Constitution (IC)", meta:"AM", type:"theory"},
+    {t:"1:10 – 2:00 PM", title:"Lunch Break", type:"lunch"},
+    {t:"2:00 – 2:50 PM", title:"Mathematics I (BSM101)", meta:"NKR", type:"theory"},
+    {t:"2:50 – 4:30 PM", title:"English (AEC101)", meta:"RC", type:"theory"},
+    {t:"4:30 – 7:00 PM", title:"  ", type:"free"},
+  ]},
+  Thu: { room:"5002 & 5014", slots:[
+    {t:"9:00 – 11:30 AM", title:" ", type:"free"},
+    {t:"11:30 AM – 12:20 PM", title:"Physics (BS PH101)", meta:"Room 5002 · GSP", type:"theory"},
+    {t:"12:20 – 2:50 PM", title:"NCC / NSS / Yoga & Sports", type:"activity"},
+    {t:"2:50 – 4:30 PM", title:"Mathematics I (BSM101)", meta:"Room 5014 · SR", type:"theory"},
+    {t:"4:30 – 7:00 PM", title:"  ", type:"free"},
+  ]},
+  Fri: { room:"5015", slots:[
+    {t:"9:00 – 11:30 AM", title:" ", type:"free"},
+    {t:"11:30 AM – 2:00 PM", title:"Basic Electrical and Electronics Engg. Lab (ESEE191)", meta:"Room 4011 ·AB, MA, SuH, VF1", type:"lab"},
+    {t:"2:00 – 2:50 PM", title:"Lunch Break", type:"lunch"},
+    {t:"2:50 – 4:30 PM", title:"Basic Electrical and Electronics Engg. (ESEE101)", meta:"AB", type:"theory"},
+    {t:"4:30 – 7:00 PM", title:"  ", type:"free"},
+  ]},
+};
+const order = ["Mon","Tue","Wed","Thu","Fri"];
+const nav = document.getElementById("dayNav");
+const sched = document.getElementById("schedule");
+const roomLine = document.getElementById("roomLine");
+let active = order[new Date().getDay()-1];
+if(!DATA[active]) active = "Mon";
+
+function render(day){
+  active = day;
+  nav.querySelectorAll('.day-btn').forEach(b=>b.classList.toggle('active', b.dataset.day===day));
+  roomLine.innerHTML = 'Home room: <span>'+DATA[day].room+'</span>';
+  sched.innerHTML = DATA[day].slots.map(s=>
+    '<div class="slot '+s.type+'"><div class="time">'+s.t+'</div><div class="info"><div class="title">'+s.title+'</div>'+(s.meta?'<div class="meta">'+s.meta+'</div>':'')+'</div></div>'
+  ).join('');
+}
+order.forEach(d=>{
+  const b=document.createElement('button');
+  b.className='day-btn'; b.dataset.day=d; b.textContent=d;
+  b.onclick=()=>render(d);
+  nav.appendChild(b);
+});
+render(active);
+</script>
+</body>
+</html>
